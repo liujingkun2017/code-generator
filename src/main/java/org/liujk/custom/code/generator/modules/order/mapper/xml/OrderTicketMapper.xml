@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.liujk.custom.code.generator.modules.order.mapper.OrderTicketMapper">
+
+	<delete id="deleteByMainId" parameterType="java.lang.String">
+		DELETE 
+		FROM  a_order_ticket 
+		WHERE
+			 order_id = #{id} 		
+	</delete>
+	
+	<select id="selectByMainId" parameterType="java.lang.String" resultType="org.liujk.custom.code.generator.modules.order.entity.OrderTicket">
+		SELECT * 
+		FROM  a_order_ticket
+		WHERE
+			 order_id = #{id} 		
+	</select>
+</mapper>
