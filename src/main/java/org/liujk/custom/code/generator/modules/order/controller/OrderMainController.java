@@ -38,6 +38,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import com.alibaba.fastjson.JSON;
+import io.swagger.annotations.ApiOperation;
 
  /**
  * @Title: Controller
@@ -66,6 +67,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@GetMapping(value = "/list")
+	@ApiOperation("分页列表查询")
 	public Result<IPage<OrderMain>> queryPageList(OrderMain orderMain,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -85,6 +87,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@PostMapping(value = "/add")
+	@ApiOperation("添加")
 	public Result<OrderMain> add(@RequestBody OrderMainPage orderMainPage) {
 		Result<OrderMain> result = new Result<OrderMain>();
 		try {
@@ -107,6 +110,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@PutMapping(value = "/edit")
+	@ApiOperation("编辑")
 	public Result<OrderMain> edit(@RequestBody OrderMainPage orderMainPage) {
 		Result<OrderMain> result = new Result<OrderMain>();
 		OrderMain orderMain = new OrderMain();
@@ -129,6 +133,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/delete")
+	@ApiOperation("通过id删除")
 	public Result<OrderMain> delete(@RequestParam(name="id",required=true) String id) {
 		Result<OrderMain> result = new Result<OrderMain>();
 		OrderMain orderMain = orderMainService.getById(id);
@@ -148,6 +153,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/deleteBatch")
+	@ApiOperation("批量删除")
 	public Result<OrderMain> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<OrderMain> result = new Result<OrderMain>();
 		if(ids==null || "".equals(ids.trim())) {
@@ -165,6 +171,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@GetMapping(value = "/queryById")
+	@ApiOperation("通过id查询")
 	public Result<OrderMain> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<OrderMain> result = new Result<OrderMain>();
 		OrderMain orderMain = orderMainService.getById(id);
@@ -183,6 +190,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@GetMapping(value = "/queryOrderCustomByMainId")
+	@ApiOperation("通过id查询")
 	public Result<List<OrderCustom>> queryOrderCustomListByMainId(@RequestParam(name="id",required=true) String id) {
 		Result<List<OrderCustom>> result = new Result<List<OrderCustom>>();
 		List<OrderCustom> orderCustomList = orderCustomService.selectByMainId(id);
@@ -196,6 +204,7 @@ public class OrderMainController {
 	 * @return
 	 */
 	@GetMapping(value = "/queryOrderTicketByMainId")
+	@ApiOperation("通过id查询")
 	public Result<List<OrderTicket>> queryOrderTicketListByMainId(@RequestParam(name="id",required=true) String id) {
 		Result<List<OrderTicket>> result = new Result<List<OrderTicket>>();
 		List<OrderTicket> orderTicketList = orderTicketService.selectByMainId(id);
@@ -211,6 +220,7 @@ public class OrderMainController {
    * @param response
    */
   @RequestMapping(value = "/exportXls")
+  @ApiOperation("导出excel")
   public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
       // Step.1 组装查询条件
       QueryWrapper<OrderMain> queryWrapper = null;
@@ -254,6 +264,7 @@ public class OrderMainController {
    * @return
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+  @ApiOperation("通过excel导入数据")
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();

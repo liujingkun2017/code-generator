@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
+import io.swagger.annotations.ApiOperation;
 
  /**
  * @Title: Controller
@@ -55,6 +56,7 @@ public class DemoController {
 	 * @return
 	 */
 	@GetMapping(value = "/list")
+	@ApiOperation("分页列表查询")
 	public Result<IPage<Demo>> queryPageList(Demo demo,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -74,6 +76,7 @@ public class DemoController {
 	 * @return
 	 */
 	@PostMapping(value = "/add")
+	@ApiOperation("添加")
 	public Result<Demo> add(@RequestBody Demo demo) {
 		Result<Demo> result = new Result<Demo>();
 		try {
@@ -93,6 +96,7 @@ public class DemoController {
 	 * @return
 	 */
 	@PutMapping(value = "/edit")
+	@ApiOperation("编辑")
 	public Result<Demo> edit(@RequestBody Demo demo) {
 		Result<Demo> result = new Result<Demo>();
 		Demo demoEntity = demoService.getById(demo.getId());
@@ -115,6 +119,7 @@ public class DemoController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/delete")
+	@ApiOperation("通过id删除")
 	public Result<Demo> delete(@RequestParam(name="id",required=true) String id) {
 		Result<Demo> result = new Result<Demo>();
 		Demo demo = demoService.getById(id);
@@ -136,6 +141,7 @@ public class DemoController {
 	 * @return
 	 */
 	@DeleteMapping(value = "/deleteBatch")
+	@ApiOperation("批量删除")
 	public Result<Demo> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<Demo> result = new Result<Demo>();
 		if(ids==null || "".equals(ids.trim())) {
@@ -153,6 +159,7 @@ public class DemoController {
 	 * @return
 	 */
 	@GetMapping(value = "/queryById")
+	@ApiOperation("通过id查询")
 	public Result<Demo> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<Demo> result = new Result<Demo>();
 		Demo demo = demoService.getById(id);
@@ -172,6 +179,7 @@ public class DemoController {
    * @param response
    */
   @RequestMapping(value = "/exportXls")
+  @ApiOperation("导出excel")
   public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
       // Step.1 组装查询条件
       QueryWrapper<Demo> queryWrapper = null;
@@ -205,6 +213,7 @@ public class DemoController {
    * @return
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+  @ApiOperation("通过excel导入数据")
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();

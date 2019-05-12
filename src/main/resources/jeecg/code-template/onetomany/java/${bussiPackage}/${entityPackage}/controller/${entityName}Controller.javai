@@ -40,6 +40,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import com.alibaba.fastjson.JSON;
+import io.swagger.annotations.ApiOperation;
 
  /**
  * @Title: Controller
@@ -68,6 +69,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@GetMapping(value = "/list")
+	@ApiOperation("分页列表查询")
 	public Result<IPage<${entityName}>> queryPageList(${entityName} ${entityName?uncap_first},
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -87,6 +89,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@PostMapping(value = "/add")
+	@ApiOperation("添加")
 	public Result<${entityName}> add(@RequestBody ${entityName}Page ${entityName?uncap_first}Page) {
 		Result<${entityName}> result = new Result<${entityName}>();
 		try {
@@ -109,6 +112,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@PutMapping(value = "/edit")
+	@ApiOperation("编辑")
 	public Result<${entityName}> edit(@RequestBody ${entityName}Page ${entityName?uncap_first}Page) {
 		Result<${entityName}> result = new Result<${entityName}>();
 		${entityName} ${entityName?uncap_first} = new ${entityName}();
@@ -131,6 +135,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@DeleteMapping(value = "/delete")
+	@ApiOperation("通过id删除")
 	public Result<${entityName}> delete(@RequestParam(name="id",required=true) String id) {
 		Result<${entityName}> result = new Result<${entityName}>();
 		${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Service.getById(id);
@@ -150,6 +155,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@DeleteMapping(value = "/deleteBatch")
+	@ApiOperation("批量删除")
 	public Result<${entityName}> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
 		Result<${entityName}> result = new Result<${entityName}>();
 		if(ids==null || "".equals(ids.trim())) {
@@ -167,6 +173,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@GetMapping(value = "/queryById")
+	@ApiOperation("通过id查询")
 	public Result<${entityName}> queryById(@RequestParam(name="id",required=true) String id) {
 		Result<${entityName}> result = new Result<${entityName}>();
 		${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Service.getById(id);
@@ -186,6 +193,7 @@ public class ${entityName}Controller {
 	 * @return
 	 */
 	@GetMapping(value = "/query${sub.entityName}ByMainId")
+	@ApiOperation("通过id查询")
 	public Result<List<${sub.entityName}>> query${sub.entityName}ListByMainId(@RequestParam(name="id",required=true) String id) {
 		Result<List<${sub.entityName}>> result = new Result<List<${sub.entityName}>>();
 		List<${sub.entityName}> ${sub.entityName?uncap_first}List = ${sub.entityName?uncap_first}Service.selectByMainId(id);
@@ -202,6 +210,7 @@ public class ${entityName}Controller {
    * @param response
    */
   @RequestMapping(value = "/exportXls")
+  @ApiOperation("导出excel")
   public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
       // Step.1 组装查询条件
       QueryWrapper<${entityName}> queryWrapper = null;
@@ -245,6 +254,7 @@ public class ${entityName}Controller {
    * @return
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+  @ApiOperation("通过excel导入数据")
   public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
