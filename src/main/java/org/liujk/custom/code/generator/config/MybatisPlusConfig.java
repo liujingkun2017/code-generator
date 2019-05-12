@@ -7,21 +7,21 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 单数据源配置（jeecg.datasource.open = false时生效）
- * @author zhoujf
  *
+ * @author zhoujf
  */
 @Configuration
-@MapperScan(value={"org.liujk.custom.code.generator.modules.**.mapper*"})
+@MapperScan(value = {"org.liujk.custom.code.generator.modules.**.mapper*"})
 public class MybatisPlusConfig {
 
     /**
-         *  分页插件
+     * 分页插件
      */
     @Bean
     public PaginationInterceptor paginationInterceptor() {
         return new PaginationInterceptor();
     }
-    
+
 //    /**
 //     * mybatis-plus SQL执行效率插件【生产环境可以关闭】
 //     */
@@ -29,6 +29,6 @@ public class MybatisPlusConfig {
 //    public PerformanceInterceptor performanceInterceptor() {
 //        return new PerformanceInterceptor();
 //    }
-    
-   
+
+
 }

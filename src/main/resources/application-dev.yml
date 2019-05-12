@@ -13,8 +13,6 @@ management:
         include: metrics,httptrace
 
 spring:
-  #必须要有个玩意，不然还报错，启动不起来，感觉有点坑
-
   #json 时间戳统一转换
   jackson:
     date-format:   yyyy-MM-dd HH:mm:ss
