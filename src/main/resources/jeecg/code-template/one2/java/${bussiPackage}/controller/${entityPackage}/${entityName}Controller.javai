@@ -1,4 +1,4 @@
-package ${bussiPackage}.${entityPackage}.controller;
+package ${bussiPackage}.controller.${entityPackage};
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,18 +6,21 @@ import java.util.Map;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import ${base_package}.common.api.Result;
-import ${base_package}.common.system.query.QueryGenerator;
-import ${base_package}.common.util.oConvertUtils;
-import ${bussiPackage}.${entityPackage}.entity.${entityName};
-import ${bussiPackage}.${entityPackage}.service.I${entityName}Service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.extern.slf4j.Slf4j;
+import org.liujk.custom.code.generator.common.api.vo.Result;
+import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
+import org.liujk.custom.code.generator.common.util.oConvertUtils;
+import ${bussiPackage}.entity.${entityPackage}.${entityName};
+import ${bussiPackage}.service.${entityPackage}.I${entityName}Service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
@@ -25,11 +28,12 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import lombok.extern.slf4j.Slf4j;
+
 import com.alibaba.fastjson.JSON;
 
  /**
@@ -165,73 +169,73 @@ public class ${entityName}Controller {
 		return result;
 	}
 
-  /**
-      * 导出excel
-   *
-   * @param request
-   * @param response
-   */
-  @RequestMapping(value = "/exportXls")
-  public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
-      // Step.1 组装查询条件
-      QueryWrapper<${entityName}> queryWrapper = null;
-      try {
-          String paramsStr = request.getParameter("paramsStr");
-          if (oConvertUtils.isNotEmpty(paramsStr)) {
-              String deString = URLDecoder.decode(paramsStr, "UTF-8");
-              ${entityName} ${entityName?uncap_first} = JSON.parseObject(deString, ${entityName}.class);
-              queryWrapper = QueryGenerator.initQueryWrapper(${entityName?uncap_first}, request.getParameterMap());
-          }
-      } catch (UnsupportedEncodingException e) {
-          e.printStackTrace();
-      }
+	/**
+     * 导出excel
+     *
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/exportXls")
+    public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
+        // Step.1 组装查询条件
+        QueryWrapper<${entityName}> queryWrapper = null;
+        try {
+            String paramsStr = request.getParameter("paramsStr");
+            if (oConvertUtils.isNotEmpty(paramsStr)) {
+                String deString = URLDecoder.decode(paramsStr, "UTF-8");
+                ${entityName} ${entityName?uncap_first} = JSON.parseObject(deString, ${entityName}.class);
+                queryWrapper = QueryGenerator.initQueryWrapper(${entityName?uncap_first}, request.getParameterMap());
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
-      //Step.2 AutoPoi 导出Excel
-      ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
-      List<${entityName}> pageList = ${entityName?uncap_first}Service.list(queryWrapper);
-      //导出文件名称
-      mv.addObject(NormalExcelConstants.FILE_NAME, "${tableVo.ftlDescription}列表");
-      mv.addObject(NormalExcelConstants.CLASS, ${entityName}.class);
-      mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("${tableVo.ftlDescription}列表数据", "导出人:Jeecg", "导出信息"));
-      mv.addObject(NormalExcelConstants.DATA_LIST, pageList);
-      return mv;
-  }
+        //Step.2 AutoPoi 导出Excel
+        ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+        List<${entityName}> pageList = ${entityName?uncap_first}Service.list(queryWrapper);
+        //导出文件名称
+        mv.addObject(NormalExcelConstants.FILE_NAME, "${tableVo.ftlDescription}列表");
+        mv.addObject(NormalExcelConstants.CLASS, ${entityName}.class);
+        mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("${tableVo.ftlDescription}列表数据", "导出人:Jeecg", "导出信息"));
+        mv.addObject(NormalExcelConstants.DATA_LIST, pageList);
+        return mv;
+    }
 
-  /**
-      * 通过excel导入数据
-   *
-   * @param request
-   * @param response
-   * @return
-   */
-  @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
-  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-      MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-      Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
-      for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
-          MultipartFile file = entity.getValue();// 获取上传文件对象
-          ImportParams params = new ImportParams();
-          params.setTitleRows(2);
-          params.setHeadRows(1);
-          params.setNeedSave(true);
-          try {
-              List<${entityName}> list${entityName}s = ExcelImportUtil.importExcel(file.getInputStream(), ${entityName}.class, params);
-              for (${entityName} ${entityName?uncap_first}Excel : list${entityName}s) {
-                  ${entityName?uncap_first}Service.save(${entityName?uncap_first}Excel);
-              }
-              return Result.ok("文件导入成功！数据行数：" + list${entityName}s.size());
-          } catch (Exception e) {
-              log.error(e.getMessage());
-              return Result.error("文件导入失败！");
-          } finally {
-              try {
-                  file.getInputStream().close();
-              } catch (IOException e) {
-                  e.printStackTrace();
-              }
-          }
-      }
-      return Result.ok("文件导入失败！");
-  }
+    /**
+          * 通过excel导入数据
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            MultipartFile file = entity.getValue();// 获取上传文件对象
+            ImportParams params = new ImportParams();
+            params.setTitleRows(2);
+            params.setHeadRows(1);
+            params.setNeedSave(true);
+            try {
+                List<${entityName}> list${entityName}s = ExcelImportUtil.importExcel(file.getInputStream(), ${entityName}.class, params);
+                for (${entityName} ${entityName?uncap_first}Excel : list${entityName}s) {
+                    ${entityName?uncap_first}Service.save(${entityName?uncap_first}Excel);
+                }
+                return Result.ok("文件导入成功！数据行数：" + list${entityName}s.size());
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return Result.error("文件导入失败！");
+            } finally {
+                try {
+                    file.getInputStream().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Result.ok("文件导入失败！");
+    }
 
 }

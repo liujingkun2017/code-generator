@@ -17,9 +17,9 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
-import ${base_package}.common.api.vo.Result;
-import ${base_package}.common.system.query.QueryGenerator;
-import ${base_package}.common.util.oConvertUtils;
+import org.liujk.custom.code.generator.common.api.vo.Result;
+import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
+import org.liujk.custom.code.generator.common.util.oConvertUtils;
 <#list subTables as sub>
 import ${bussiPackage}.${entityPackage}.entity.${sub.entityName};
 </#list>

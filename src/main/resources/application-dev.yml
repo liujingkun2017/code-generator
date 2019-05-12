@@ -1,4 +1,3 @@
-
 server:
   port: 8080
   servlet:
@@ -14,17 +13,7 @@ management:
         include: metrics,httptrace
 
 spring:
-#  mail:
-#    host: smtp.163.com
-#    username: 13164432553@163.com
-#    password: ljk246437
-#    properties:
-#      mail:
-#        smtp:
-#          auth: true
-#          starttls:
-#            enable: true
-#            required: true
+  #必须要有个玩意，不然还报错，启动不起来，感觉有点坑
 
   #json 时间戳统一转换
   jackson:
@@ -111,8 +100,8 @@ mybatis-plus:
   mapper-locations: classpath*:org/liujk/custom/code/generator/modules/**/xml/*Mapper.xml
 
 #jeecg专用配置
-jeecg :
-  path :
+jeecg:
+  path:
     #文件上传根目录 设置
     upload: D://upFiles
     #webapp文件路径

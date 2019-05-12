@@ -1,4 +1,4 @@
-//package org.liujk.custom.code.generator.config;
+//package org.liujk.custom.code.generator.jeecg;
 //
 //import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 //import org.apache.shiro.mgt.DefaultSubjectDAO;
