@@ -17,7 +17,7 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
-import org.liujk.custom.code.generator.common.api.vo.Result;
+import org.liujk.custom.code.generator.common.api.Result;
 import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
 import org.liujk.custom.code.generator.common.util.oConvertUtils;
 <#list subTables as sub>
