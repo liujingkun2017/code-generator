@@ -23,7 +23,7 @@ public class OneToMainUtil {
     public static void main(String[] args) {
         //第一步：设置主表配置
         MainTableVo mainTable = new MainTableVo();
-        mainTable.setTableName("a_order_main");//表名
+        mainTable.setTableName("order_main");//表名
         mainTable.setEntityName("OrderMain");     //实体名
         mainTable.setEntityPackage("order");     //包名
         mainTable.setFtlDescription("订单");     //描述
@@ -32,7 +32,7 @@ public class OneToMainUtil {
         List<SubTableVo> subTables = new ArrayList<SubTableVo>();
         //[1].子表一
         SubTableVo po = new SubTableVo();
-        po.setTableName("a_order_customer");//表名
+        po.setTableName("order_customer");//表名
         po.setEntityName("OrderCustom");        //实体名
         po.setEntityPackage("order");            //包名
         po.setFtlDescription("客户明细");       //描述
@@ -46,7 +46,7 @@ public class OneToMainUtil {
         subTables.add(po);
         //[2].子表二
         SubTableVo po2 = new SubTableVo();
-        po2.setTableName("a_order_ticket");        //表名
+        po2.setTableName("order_ticket");        //表名
         po2.setEntityName("OrderTicket");            //实体名
         po2.setEntityPackage("order");                //包名
         po2.setFtlDescription("产品明细");            //描述
