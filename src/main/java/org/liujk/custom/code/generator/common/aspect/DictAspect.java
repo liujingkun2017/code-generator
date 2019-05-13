@@ -1,5 +1,6 @@
 //package org.liujk.custom.code.generator.common.aspect;
 //
+//import com.alibaba.fastjson.JSON;
 //import com.alibaba.fastjson.JSONObject;
 //import com.baomidou.mybatisplus.core.metadata.IPage;
 //import com.fasterxml.jackson.annotation.JsonFormat;
@@ -12,7 +13,9 @@
 //import org.aspectj.lang.annotation.Pointcut;
 //import org.liujk.custom.code.generator.common.api.DefaultResponse;
 //import org.liujk.custom.code.generator.common.aspect.annotation.Dict;
+//import org.liujk.custom.code.generator.common.aspect.annotation.FieldEnableKey;
 //import org.liujk.custom.code.generator.common.constant.CommonConstant;
+//import org.liujk.custom.code.generator.common.util.RedisUtil;
 //import org.liujk.custom.code.generator.modules.system.service.ISysDictService;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
@@ -42,6 +45,9 @@
 //    @Autowired
 //    private ISysDictService dictService;
 //
+//    @Autowired
+//    private RedisUtil redisUtil;
+//
 //    // 定义切点Pointcut
 //    @Pointcut("execution(public * org.liujk.custom.code.generator.modules.*.*.*Controller.*(..))")
 //    public void excudeService() {
@@ -52,11 +58,11 @@
 //        long time1 = System.currentTimeMillis();
 //        Object result = pjp.proceed();
 //        long time2 = System.currentTimeMillis();
-//        log.debug("获取JSON数据 耗时：" + (time2 - time1) + "ms");
+//        logger.debug("获取JSON数据 耗时：" + (time2 - time1) + "ms");
 //        long start = System.currentTimeMillis();
 //        parseDictText(result);
 //        long end = System.currentTimeMillis();
-//        log.debug("解析注入JSON数据  耗时" + (end - start) + "ms");
+//        logger.debug("解析注入JSON数据  耗时" + (end - start) + "ms");
 //        return result;
 //    }
 //
@@ -98,25 +104,46 @@
 //                        e.printStackTrace();
 //                    }
 //                    JSONObject item = JSONObject.parseObject(json);
+//                    int i = 1;
 //                    for (Field field : record.getClass().getDeclaredFields()) {
-//                        if (field.getAnnotation(Dict.class) != null) {
-//                            String code = field.getAnnotation(Dict.class).dicCode();
-//                            String text = field.getAnnotation(Dict.class).dicText();
-//                            String table = field.getAnnotation(Dict.class).dictTable();
-//                            String key = String.valueOf(item.get(field.getName()));
-//                            String textValue = null;
-//                            if (!StringUtils.isEmpty(table)) {
-//                                textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+////                        if (field.getAnnotation(Dict.class) != null) {
+////                            String code = field.getAnnotation(Dict.class).dicCode();
+////                            String text = field.getAnnotation(Dict.class).dicText();
+////                            String table = field.getAnnotation(Dict.class).dictTable();
+////                            String key = String.valueOf(item.get(field.getName()));
+////                            String textValue = null;
+////                            if (!StringUtils.isEmpty(table)) {
+////                                textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+////                            } else {
+////                                textValue = dictService.queryDictTextByKey(code, key);
+////                            }
+////                            item.put(field.getName() + "_dictText", textValue);
+////                        }
+////                        //date类型默认转换string格式化日期
+////                        if (field.getType().getName().equals("java.util.Date") && field.getAnnotation(JsonFormat.class) == null && item.get(field.getName()) != null) {
+////                            SimpleDateFormat aDate = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+////                            item.put(field.getName(), aDate.format(new Date((Long) item.get(field.getName()))));
+////                        }
+//
+//                        if (field.getAnnotation(FieldEnableKey.class) != null) {
+//                            String fieldKey = field.getAnnotation(FieldEnableKey.class).key();
+//                            FieldEnableValue fieldEnableValue = new FieldEnableValue();
+//                            if (i % 2 == 0) {
+//                                fieldEnableValue.setEnable(true);
+//                                fieldEnableValue.setListEnable(true);
+//                                fieldEnableValue.setFormEnable(true);
 //                            } else {
-//                                textValue = dictService.queryDictTextByKey(code, key);
+//                                fieldEnableValue.setEnable(false);
+//                                fieldEnableValue.setListEnable(false);
+//                                fieldEnableValue.setFormEnable(false);
 //                            }
-//                            item.put(field.getName() + "_dictText", textValue);
+//
+//                            redisUtil.set(fieldKey, JSON.toJSONString(fieldEnableValue));
 //                        }
-//                        //date类型默认转换string格式化日期
-//                        if (field.getType().getName().equals("java.util.Date") && field.getAnnotation(JsonFormat.class) == null && item.get(field.getName()) != null) {
-//                            SimpleDateFormat aDate = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-//                            item.put(field.getName(), aDate.format(new Date((Long) item.get(field.getName()))));
-//                        }
+//
+//
+//                        i++;
+//
 //                    }
 //                    items.add(item);
 //                }

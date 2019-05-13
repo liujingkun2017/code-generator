@@ -1,5 +1,6 @@
 package org.liujk.custom.code.generator.common.aspect;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -53,11 +54,11 @@ public class FieldConfigAspect implements Ordered {
         long time1 = System.currentTimeMillis();
         Object result = pjp.proceed();
         long time2 = System.currentTimeMillis();
-        log.debug("获取JSON数据 耗时：" + (time2 - time1) + "ms");
+        logger.debug("获取JSON数据 耗时：" + (time2 - time1) + "ms");
         long start = System.currentTimeMillis();
         executeConfigRule(result);
         long end = System.currentTimeMillis();
-        log.debug("解析注入JSON数据  耗时" + (end - start) + "ms");
+        logger.debug("解析注入JSON数据  耗时" + (end - start) + "ms");
         return result;
     }
 
@@ -66,7 +67,6 @@ public class FieldConfigAspect implements Ordered {
             //如果data是分页查询
             if (((DefaultResponse) result).getData() instanceof IPage) {
                 executeConfigRuleForPage(result);
-
             }
             //如果data是列表
             else if (((DefaultResponse) result).getData() instanceof List) {
@@ -101,10 +101,14 @@ public class FieldConfigAspect implements Ordered {
             for (Field field : record.getClass().getDeclaredFields()) {
                 //判断字段是否是启用字段,判断字段在列表是否显示
                 if (field.getAnnotation(FieldEnableKey.class) != null) {
-                    item.remove(field.getName());
-                    continue;
+                    String fieldKey = field.getAnnotation(FieldEnableKey.class).key();
+                    String fieldValue = (String) redisUtil.get(fieldKey);
+                    FieldEnableValue fieldEnableValue = JSON.parseObject(fieldValue, FieldEnableValue.class);
+                    if (!fieldEnableValue.isEnable() || !fieldEnableValue.isListEnable()) {
+                        item.remove(field.getName());
+                        continue;
+                    }
                 }
-
                 //字段数据进行字段转换
                 if (field.getAnnotation(Dict.class) != null) {
                     String code = field.getAnnotation(Dict.class).dicCode();
@@ -125,7 +129,6 @@ public class FieldConfigAspect implements Ordered {
                     SimpleDateFormat aDate = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
                     item.put(field.getName(), aDate.format(new Date((Long) item.get(field.getName()))));
                 }
-
             }
             items.add(item);
         }
@@ -153,12 +156,35 @@ public class FieldConfigAspect implements Ordered {
             for (Field field : record.getClass().getDeclaredFields()) {
                 //判断字段是否是启用字段,判断字段在列表是否显示
                 if (field.getAnnotation(FieldEnableKey.class) != null) {
-                    item.remove(field.getName());
-                    continue;
+                    String fieldKey = field.getAnnotation(FieldEnableKey.class).key();
+                    String fieldValue = (String) redisUtil.get(fieldKey);
+                    FieldEnableValue fieldEnableValue = JSON.parseObject(fieldValue, FieldEnableValue.class);
+                    if (!fieldEnableValue.isEnable() || !fieldEnableValue.isListEnable()) {
+                        item.remove(field.getName());
+                        continue;
+                    }
                 }
 
                 //字段数据进行字段转换
-
+                if (field.getAnnotation(Dict.class) != null) {
+                    String code = field.getAnnotation(Dict.class).dicCode();
+                    String text = field.getAnnotation(Dict.class).dicText();
+                    String table = field.getAnnotation(Dict.class).dictTable();
+                    String key = String.valueOf(item.get(field.getName()));
+                    String textValue = null;
+                    if (!StringUtils.isEmpty(table)) {
+                        textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+                    } else {
+                        textValue = dictService.queryDictTextByKey(code, key);
+                    }
+                    item.put(field.getName() + "_dictText", textValue);
+                }
+                //date类型默认转换string格式化日期
+                if (field.getType().getName().equals("java.util.Date")
+                        && field.getAnnotation(JsonFormat.class) == null && item.get(field.getName()) != null) {
+                    SimpleDateFormat aDate = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+                    item.put(field.getName(), aDate.format(new Date((Long) item.get(field.getName()))));
+                }
             }
             items.add(item);
         }
@@ -185,14 +211,39 @@ public class FieldConfigAspect implements Ordered {
         for (Field field : record.getClass().getDeclaredFields()) {
             //判断字段是否是启用字段,判断字段在列表是否显示
             if (field.getAnnotation(FieldEnableKey.class) != null) {
-                item.remove(field.getName());
-                continue;
+                String fieldKey = field.getAnnotation(FieldEnableKey.class).key();
+                String fieldValue = (String) redisUtil.get(fieldKey);
+                FieldEnableValue fieldEnableValue = JSON.parseObject(fieldValue, FieldEnableValue.class);
+                if (!fieldEnableValue.isEnable() || !fieldEnableValue.isFormEnable()) {
+                    item.remove(field.getName());
+                    continue;
+                }
             }
 
             //字段数据进行字段转换
+            if (field.getAnnotation(Dict.class) != null) {
+                String code = field.getAnnotation(Dict.class).dicCode();
+                String text = field.getAnnotation(Dict.class).dicText();
+                String table = field.getAnnotation(Dict.class).dictTable();
+                String key = String.valueOf(item.get(field.getName()));
+                String textValue = null;
+                if (!StringUtils.isEmpty(table)) {
+                    textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+                } else {
+                    textValue = dictService.queryDictTextByKey(code, key);
+                }
+                item.put(field.getName() + "_dictText", textValue);
+            }
+            //date类型默认转换string格式化日期
+            if (field.getType().getName().equals("java.util.Date")
+                    && field.getAnnotation(JsonFormat.class) == null && item.get(field.getName()) != null) {
+                SimpleDateFormat aDate = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+                item.put(field.getName(), aDate.format(new Date((Long) item.get(field.getName()))));
+            }
 
         }
         ((DefaultResponse) result).setData(item);
+
     }
 
     @Override
