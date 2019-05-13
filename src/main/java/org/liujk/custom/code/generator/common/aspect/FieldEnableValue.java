@@ -11,6 +11,15 @@ public class FieldEnableValue {
     //表单是否显示
     private boolean formEnable;
 
+    //字典编码
+    private String dicCode;
+
+    //字典项文本
+    private String dicText;
+
+    //数据字典表
+    private String dictTable;
+
     public boolean isEnable() {
         return enable;
     }
@@ -33,5 +42,29 @@ public class FieldEnableValue {
 
     public void setFormEnable(boolean formEnable) {
         this.formEnable = formEnable;
+    }
+
+    public String getDicCode() {
+        return dicCode;
+    }
+
+    public void setDicCode(String dicCode) {
+        this.dicCode = dicCode;
+    }
+
+    public String getDicText() {
+        return dicText;
+    }
+
+    public void setDicText(String dicText) {
+        this.dicText = dicText;
+    }
+
+    public String getDictTable() {
+        return dictTable;
+    }
+
+    public void setDictTable(String dictTable) {
+        this.dictTable = dictTable;
     }
 }
