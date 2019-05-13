@@ -1,4 +1,4 @@
-package org.liujk.custom.code.generator.common.system.query;
+package org.liujk.custom.code.generator.modules.system.query;
 
 import java.io.Serializable;
 

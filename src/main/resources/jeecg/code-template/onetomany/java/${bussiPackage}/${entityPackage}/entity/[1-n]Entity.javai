@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import java.util.Date;
+import org.liujk.custom.code.generator.common.aspect.annotation.FieldConfigKey;
 
 /**
  * @Description: ${subTab.ftlDescription}
@@ -44,6 +45,7 @@ public class ${subTab.entityName} implements Serializable {
     </#if>
   </#if>
   </#if>
+    @FieldConfigKey(key = "${entityName}.${po.fieldName}")
 	private <#if po.fieldType=='java.sql.Blob'>byte[]<#else>${po.fieldType}</#if> ${po.fieldName};
 	</#list>
 }

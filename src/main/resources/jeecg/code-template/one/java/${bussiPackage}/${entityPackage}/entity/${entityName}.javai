@@ -9,6 +9,7 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
+import org.liujk.custom.code.generator.common.aspect.annotation.FieldConfigKey;
 
 /**
  * @Description: ${tableVo.ftlDescription}
@@ -40,6 +41,7 @@ public class ${entityName} implements Serializable {
 	@Excel(name = "${po.filedComment}", width = 15)
   </#if>
   </#if>
+    @FieldConfigKey(key = "${entityName}.${po.fieldName}")
 	private <#if po.fieldType=='java.sql.Blob'>byte[]<#else>${po.fieldType}</#if> ${po.fieldName};
 	</#list>
 }

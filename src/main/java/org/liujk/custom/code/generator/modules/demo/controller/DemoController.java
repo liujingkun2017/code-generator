@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.liujk.custom.code.generator.common.api.CommonResultCode;
 import org.liujk.custom.code.generator.common.api.DefaultResponse;
-import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
+import org.liujk.custom.code.generator.modules.system.query.QueryGenerator;
 import org.liujk.custom.code.generator.common.util.oConvertUtils;
 import org.liujk.custom.code.generator.modules.demo.entity.Demo;
 import org.liujk.custom.code.generator.modules.demo.service.IDemoService;

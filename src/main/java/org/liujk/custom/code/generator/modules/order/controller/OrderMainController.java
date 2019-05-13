@@ -20,7 +20,7 @@ import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.liujk.custom.code.generator.common.api.Result;
 import org.liujk.custom.code.generator.common.api.CommonResultCode;
 import org.liujk.custom.code.generator.common.api.DefaultResponse;
-import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
+import org.liujk.custom.code.generator.modules.system.query.QueryGenerator;
 import org.liujk.custom.code.generator.common.util.oConvertUtils;
 import org.liujk.custom.code.generator.modules.order.entity.OrderCustom;
 import org.liujk.custom.code.generator.modules.order.entity.OrderTicket;
