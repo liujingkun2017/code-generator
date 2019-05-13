@@ -12,10 +12,12 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.liujk.custom.code.generator.common.api.DefaultResponse;
 import org.liujk.custom.code.generator.common.aspect.annotation.Dict;
+import org.liujk.custom.code.generator.common.constant.CommonConstant;
 import org.liujk.custom.code.generator.modules.system.service.ISysDictService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -34,8 +36,9 @@ import java.util.List;
 @Aspect
 @Component
 @Slf4j
-public class DictAspect {
+public class DictAspect implements Ordered {
     private static final Logger logger = LoggerFactory.getLogger(DictAspect.class);
+
     @Autowired
     private ISysDictService dictService;
 
@@ -123,4 +126,8 @@ public class DictAspect {
         }
     }
 
+    @Override
+    public int getOrder() {
+        return CommonConstant.DICT_ASPECT_ORDERED;
+    }
 }

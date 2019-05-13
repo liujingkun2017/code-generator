@@ -1,5 +1,8 @@
 package org.liujk.custom.code.generator.common.api;
 
+import lombok.Data;
+
+@Data
 public class DefaultResponse<T> extends BaseResponse {
 
     private T data;

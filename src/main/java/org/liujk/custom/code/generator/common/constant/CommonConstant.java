@@ -61,4 +61,12 @@ public interface CommonConstant {
      * 2：按钮权限
      */
     public static Integer MENU_TYPE_2 = 2;
+
+
+    /**
+     * aop aspect 执行顺序
+     */
+    public static final Integer FIELD_CONFIG_KEY_ASPECT_ORDERED = 0;
+    public static final Integer DICT_ASPECT_ORDERED = 1;
+    public static final Integer AUTO_LOG_ASPECT_ORDERED = 2;
 }
