@@ -7,13 +7,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.liujk.custom.code.generator.common.api.DefaultResponse;
-import org.liujk.custom.code.generator.common.aspect.annotation.Dict;
 import org.liujk.custom.code.generator.common.aspect.annotation.FieldEnableKey;
 import org.liujk.custom.code.generator.common.aspect.data.FieldEnableValue;
 import org.liujk.custom.code.generator.common.constant.CommonConstant;
@@ -32,12 +30,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ * 对于接口放回的data数据，进行字段处理
+ * 1、未启用的数据需要去掉
+ * 2、需要进行字典转换的数据，需要进行转换后返回
+ */
 @Aspect
 @Component
 @Slf4j
-public class FieldConfigAspect implements Ordered {
+public class ResponseFieldConfigAspect implements Ordered {
 
-    private static final Logger logger = LoggerFactory.getLogger(FieldConfigAspect.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResponseFieldConfigAspect.class);
 
     @Autowired
     private RedisUtil redisUtil;
@@ -65,19 +69,20 @@ public class FieldConfigAspect implements Ordered {
 
     private void executeConfigRule(Object result) {
         if (result instanceof DefaultResponse) {
-            //如果data是分页查询
-            if (((DefaultResponse) result).getData() instanceof IPage) {
-                executeConfigRuleForPage(result);
+            if (((DefaultResponse) result).getData() != null) {
+                //如果data是分页查询
+                if (((DefaultResponse) result).getData() instanceof IPage) {
+                    executeConfigRuleForPage(result);
+                }
+                //如果data是列表
+                else if (((DefaultResponse) result).getData() instanceof List) {
+                    executeConfigRuleForList(result);
+                }
+                //其余情况处理为data是单个对象
+                else {
+                    executeConfigRuleForObject(result);
+                }
             }
-            //如果data是列表
-            else if (((DefaultResponse) result).getData() instanceof List) {
-                executeConfigRuleForList(result);
-            }
-            //其余情况处理为data是单个对象
-            else {
-                executeConfigRuleForObject(result);
-            }
-
         }
     }
 
@@ -109,20 +114,20 @@ public class FieldConfigAspect implements Ordered {
                         item.remove(field.getName());
                         continue;
                     }
-                }
-                //字段数据进行字段转换
-                if (field.getAnnotation(Dict.class) != null) {
-                    String code = field.getAnnotation(Dict.class).dicCode();
-                    String text = field.getAnnotation(Dict.class).dicText();
-                    String table = field.getAnnotation(Dict.class).dictTable();
-                    String key = String.valueOf(item.get(field.getName()));
-                    String textValue = null;
-                    if (!StringUtils.isEmpty(table)) {
-                        textValue = dictService.queryTableDictTextByKey(table, text, code, key);
-                    } else {
-                        textValue = dictService.queryDictTextByKey(code, key);
+                    //字段数据进行字段转换
+                    if (fieldEnableValue.isDicEnable()) {
+                        String code = fieldEnableValue.getDicCode();
+                        String text = fieldEnableValue.getDicText();
+                        String table = fieldEnableValue.getDictTable();
+                        String key = String.valueOf(item.get(field.getName()));
+                        String textValue = null;
+                        if (!StringUtils.isEmpty(table)) {
+                            textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+                        } else {
+                            textValue = dictService.queryDictTextByKey(code, key);
+                        }
+                        item.put(field.getName() + "_dictText", textValue);
                     }
-                    item.put(field.getName() + "_dictText", textValue);
                 }
                 //date类型默认转换string格式化日期
                 if (field.getType().getName().equals("java.util.Date")
@@ -164,21 +169,20 @@ public class FieldConfigAspect implements Ordered {
                         item.remove(field.getName());
                         continue;
                     }
-                }
-
-                //字段数据进行字段转换
-                if (field.getAnnotation(Dict.class) != null) {
-                    String code = field.getAnnotation(Dict.class).dicCode();
-                    String text = field.getAnnotation(Dict.class).dicText();
-                    String table = field.getAnnotation(Dict.class).dictTable();
-                    String key = String.valueOf(item.get(field.getName()));
-                    String textValue = null;
-                    if (!StringUtils.isEmpty(table)) {
-                        textValue = dictService.queryTableDictTextByKey(table, text, code, key);
-                    } else {
-                        textValue = dictService.queryDictTextByKey(code, key);
+                    //字段数据进行字段转换
+                    if (fieldEnableValue.isDicEnable()) {
+                        String code = fieldEnableValue.getDicCode();
+                        String text = fieldEnableValue.getDicText();
+                        String table = fieldEnableValue.getDictTable();
+                        String key = String.valueOf(item.get(field.getName()));
+                        String textValue = null;
+                        if (!StringUtils.isEmpty(table)) {
+                            textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+                        } else {
+                            textValue = dictService.queryDictTextByKey(code, key);
+                        }
+                        item.put(field.getName() + "_dictText", textValue);
                     }
-                    item.put(field.getName() + "_dictText", textValue);
                 }
                 //date类型默认转换string格式化日期
                 if (field.getType().getName().equals("java.util.Date")
@@ -219,21 +223,20 @@ public class FieldConfigAspect implements Ordered {
                     item.remove(field.getName());
                     continue;
                 }
-            }
-
-            //字段数据进行字段转换
-            if (field.getAnnotation(Dict.class) != null) {
-                String code = field.getAnnotation(Dict.class).dicCode();
-                String text = field.getAnnotation(Dict.class).dicText();
-                String table = field.getAnnotation(Dict.class).dictTable();
-                String key = String.valueOf(item.get(field.getName()));
-                String textValue = null;
-                if (!StringUtils.isEmpty(table)) {
-                    textValue = dictService.queryTableDictTextByKey(table, text, code, key);
-                } else {
-                    textValue = dictService.queryDictTextByKey(code, key);
+                //字段数据进行字段转换
+                if (fieldEnableValue.isDicEnable()) {
+                    String code = fieldEnableValue.getDicCode();
+                    String text = fieldEnableValue.getDicText();
+                    String table = fieldEnableValue.getDictTable();
+                    String key = String.valueOf(item.get(field.getName()));
+                    String textValue = null;
+                    if (!StringUtils.isEmpty(table)) {
+                        textValue = dictService.queryTableDictTextByKey(table, text, code, key);
+                    } else {
+                        textValue = dictService.queryDictTextByKey(code, key);
+                    }
+                    item.put(field.getName() + "_dictText", textValue);
                 }
-                item.put(field.getName() + "_dictText", textValue);
             }
             //date类型默认转换string格式化日期
             if (field.getType().getName().equals("java.util.Date")

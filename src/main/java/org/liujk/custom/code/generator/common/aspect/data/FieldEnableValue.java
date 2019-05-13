@@ -11,6 +11,9 @@ public class FieldEnableValue {
     //表单是否显示
     private boolean formEnable;
 
+    //是否启用字典
+    private boolean dicEnable;
+
     //字典编码
     private String dicCode;
 
@@ -66,5 +69,13 @@ public class FieldEnableValue {
 
     public void setDictTable(String dictTable) {
         this.dictTable = dictTable;
+    }
+
+    public boolean isDicEnable() {
+        return dicEnable;
+    }
+
+    public void setDicEnable(boolean dicEnable) {
+        this.dicEnable = dicEnable;
     }
 }
