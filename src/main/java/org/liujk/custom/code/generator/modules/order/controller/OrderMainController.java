@@ -18,6 +18,8 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 
 import org.liujk.custom.code.generator.common.api.Result;
+import org.liujk.custom.code.generator.common.api.CommonResultCode;
+import org.liujk.custom.code.generator.common.api.DefaultResponse;
 import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
 import org.liujk.custom.code.generator.common.util.oConvertUtils;
 import org.liujk.custom.code.generator.modules.order.entity.OrderCustom;
@@ -44,7 +46,7 @@ import io.swagger.annotations.ApiOperation;
  * @Title: Controller
  * @Description: 订单
  * @author： jeecg-boot
- * @date：   2019-05-12
+ * @date：   2019-05-13
  * @version： V1.0
  */
 @RestController
@@ -68,16 +70,15 @@ public class OrderMainController {
 	 */
 	@GetMapping(value = "/list")
 	@ApiOperation("分页列表查询")
-	public Result<IPage<OrderMain>> queryPageList(OrderMain orderMain,
+	public DefaultResponse<IPage<OrderMain>> queryPageList(OrderMain orderMain,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 									  HttpServletRequest req) {
-		Result<IPage<OrderMain>> result = new Result<IPage<OrderMain>>();
+		DefaultResponse<IPage<OrderMain>> result = new DefaultResponse<IPage<OrderMain>>();
 		QueryWrapper<OrderMain> queryWrapper = QueryGenerator.initQueryWrapper(orderMain, req.getParameterMap());
 		Page<OrderMain> page = new Page<OrderMain>(pageNo, pageSize);
 		IPage<OrderMain> pageList = orderMainService.page(page, queryWrapper);
-		result.setSuccess(true);
-		result.setResult(pageList);
+		result.setData(pageList);
 		return result;
 	}
 	
@@ -88,18 +89,17 @@ public class OrderMainController {
 	 */
 	@PostMapping(value = "/add")
 	@ApiOperation("添加")
-	public Result<OrderMain> add(@RequestBody OrderMainPage orderMainPage) {
-		Result<OrderMain> result = new Result<OrderMain>();
+	public DefaultResponse<OrderMain> add(@RequestBody OrderMainPage orderMainPage) {
+		DefaultResponse<OrderMain> result = new DefaultResponse<OrderMain>();
 		try {
 			OrderMain orderMain = new OrderMain();
 			BeanUtils.copyProperties(orderMainPage, orderMain);
 			
 			orderMainService.saveMain(orderMain, orderMainPage.getOrderCustomList(),orderMainPage.getOrderTicketList());
-			result.success("添加成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info(e.getMessage());
-			result.error500("操作失败");
+			result.setResultCode(CommonResultCode.UNKNOWN_EXCEPTION.getCode());
 		}
 		return result;
 	}
@@ -111,17 +111,16 @@ public class OrderMainController {
 	 */
 	@PutMapping(value = "/edit")
 	@ApiOperation("编辑")
-	public Result<OrderMain> edit(@RequestBody OrderMainPage orderMainPage) {
-		Result<OrderMain> result = new Result<OrderMain>();
+	public DefaultResponse<OrderMain> edit(@RequestBody OrderMainPage orderMainPage) {
+		DefaultResponse<OrderMain> result = new DefaultResponse<OrderMain>();
 		OrderMain orderMain = new OrderMain();
 		BeanUtils.copyProperties(orderMainPage, orderMain);
 		OrderMain orderMainEntity = orderMainService.getById(orderMain.getId());
 		if(orderMainEntity==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
 			boolean ok = orderMainService.updateById(orderMain);
 			orderMainService.updateMain(orderMain, orderMainPage.getOrderCustomList(),orderMainPage.getOrderTicketList());
-			result.success("修改成功!");
 		}
 		
 		return result;
@@ -134,14 +133,13 @@ public class OrderMainController {
 	 */
 	@DeleteMapping(value = "/delete")
 	@ApiOperation("通过id删除")
-	public Result<OrderMain> delete(@RequestParam(name="id",required=true) String id) {
-		Result<OrderMain> result = new Result<OrderMain>();
+	public DefaultResponse<OrderMain> delete(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<OrderMain> result = new DefaultResponse<OrderMain>();
 		OrderMain orderMain = orderMainService.getById(id);
 		if(orderMain==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
 			orderMainService.delMain(id);
-			result.success("删除成功!");
 		}
 		
 		return result;
@@ -154,13 +152,12 @@ public class OrderMainController {
 	 */
 	@DeleteMapping(value = "/deleteBatch")
 	@ApiOperation("批量删除")
-	public Result<OrderMain> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		Result<OrderMain> result = new Result<OrderMain>();
+	public DefaultResponse<OrderMain> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
+		DefaultResponse<OrderMain> result = new DefaultResponse<OrderMain>();
 		if(ids==null || "".equals(ids.trim())) {
-			result.error500("参数不识别！");
+			result.setResultCode(CommonResultCode.ARGUMENT_NOT_BE_NULL.getCode());
 		}else {
 			this.orderMainService.delBatchMain(Arrays.asList(ids.split(",")));
-			result.success("删除成功!");
 		}
 		return result;
 	}
@@ -172,14 +169,13 @@ public class OrderMainController {
 	 */
 	@GetMapping(value = "/queryById")
 	@ApiOperation("通过id查询")
-	public Result<OrderMain> queryById(@RequestParam(name="id",required=true) String id) {
-		Result<OrderMain> result = new Result<OrderMain>();
+	public DefaultResponse<OrderMain> queryById(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<OrderMain> result = new DefaultResponse<OrderMain>();
 		OrderMain orderMain = orderMainService.getById(id);
 		if(orderMain==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
-			result.setResult(orderMain);
-			result.setSuccess(true);
+			result.setData(orderMain);
 		}
 		return result;
 	}
@@ -191,11 +187,10 @@ public class OrderMainController {
 	 */
 	@GetMapping(value = "/queryOrderCustomByMainId")
 	@ApiOperation("通过id查询")
-	public Result<List<OrderCustom>> queryOrderCustomListByMainId(@RequestParam(name="id",required=true) String id) {
-		Result<List<OrderCustom>> result = new Result<List<OrderCustom>>();
+	public DefaultResponse<List<OrderCustom>> queryOrderCustomListByMainId(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<List<OrderCustom>> result = new DefaultResponse<List<OrderCustom>>();
 		List<OrderCustom> orderCustomList = orderCustomService.selectByMainId(id);
-		result.setResult(orderCustomList);
-		result.setSuccess(true);
+		result.setData(orderCustomList);
 		return result;
 	}
 	/**
@@ -205,11 +200,10 @@ public class OrderMainController {
 	 */
 	@GetMapping(value = "/queryOrderTicketByMainId")
 	@ApiOperation("通过id查询")
-	public Result<List<OrderTicket>> queryOrderTicketListByMainId(@RequestParam(name="id",required=true) String id) {
-		Result<List<OrderTicket>> result = new Result<List<OrderTicket>>();
+	public DefaultResponse<List<OrderTicket>> queryOrderTicketListByMainId(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<List<OrderTicket>> result = new DefaultResponse<List<OrderTicket>>();
 		List<OrderTicket> orderTicketList = orderTicketService.selectByMainId(id);
-		result.setResult(orderTicketList);
-		result.setSuccess(true);
+		result.setData(orderTicketList);
 		return result;
 	}
 
@@ -265,7 +259,8 @@ public class OrderMainController {
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
   @ApiOperation("通过excel导入数据")
-  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+  public DefaultResponse<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+      DefaultResponse result = new DefaultResponse();
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
       for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
@@ -281,10 +276,12 @@ public class OrderMainController {
                   BeanUtils.copyProperties(page, po);
                   orderMainService.saveMain(po, page.getOrderCustomList(),page.getOrderTicketList());
               }
-              return Result.ok("文件导入成功！数据行数：" + list.size());
+              result.setResultMessage("文件导入成功！数据行数：" + list.size());
+              return result;
           } catch (Exception e) {
               log.error(e.getMessage());
-              return Result.error("文件导入失败！");
+              result.setResultCode(CommonResultCode.UNKNOWN_EXCEPTION.getCode());
+              return result;
           } finally {
               try {
                   file.getInputStream().close();
@@ -293,7 +290,8 @@ public class OrderMainController {
               }
           }
       }
-      return Result.ok("文件导入失败！");
+      result.setResultCode(CommonResultCode.EXECUTE_FAIL.getCode());
+      return result;
   }
 
 }
