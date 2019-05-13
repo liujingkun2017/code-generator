@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.liujk.custom.code.generator.common.aspect.annotation.FieldConfigKey;
+import org.liujk.custom.code.generator.common.aspect.annotation.FieldEnableKey;
 
 /**
  * @Description: ${tableVo.ftlDescription}
@@ -35,7 +35,7 @@ public class ${entityName} implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	</#if>
   </#if>
-    @FieldConfigKey(key = "${entityName}.${po.fieldName}")
+    @FieldEnableKey(key = "${entityName}.${po.fieldName}")
 	private <#if po.fieldType=='java.sql.Blob'>byte[]<#else>${po.fieldType}</#if> ${po.fieldName};
 	</#list>
 }

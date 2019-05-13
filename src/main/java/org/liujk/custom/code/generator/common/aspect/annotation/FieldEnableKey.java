@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FieldConfigKey {
+public @interface FieldEnableKey {
 
     /**
      * 字段配置key值
