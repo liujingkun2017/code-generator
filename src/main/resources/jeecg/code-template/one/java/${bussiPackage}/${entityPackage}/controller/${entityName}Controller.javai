@@ -8,7 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.liujk.custom.code.generator.common.api.Result;
+import org.liujk.custom.code.generator.common.api.CommonResultCode;
+import org.liujk.custom.code.generator.common.api.DefaultResponse;
 import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
 import org.liujk.custom.code.generator.common.util.oConvertUtils;
 import ${bussiPackage}.${entityPackage}.entity.${entityName};
@@ -57,16 +58,15 @@ public class ${entityName}Controller {
 	 */
 	@GetMapping(value = "/list")
 	@ApiOperation("分页列表查询")
-	public Result<IPage<${entityName}>> queryPageList(${entityName} ${entityName?uncap_first},
+	public DefaultResponse<IPage<${entityName}>> queryPageList(${entityName} ${entityName?uncap_first},
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 									  HttpServletRequest req) {
-		Result<IPage<${entityName}>> result = new Result<IPage<${entityName}>>();
+		DefaultResponse<IPage<${entityName}>> result = new DefaultResponse<IPage<${entityName}>>();
 		QueryWrapper<${entityName}> queryWrapper = QueryGenerator.initQueryWrapper(${entityName?uncap_first}, req.getParameterMap());
 		Page<${entityName}> page = new Page<${entityName}>(pageNo, pageSize);
 		IPage<${entityName}> pageList = ${entityName?uncap_first}Service.page(page, queryWrapper);
-		result.setSuccess(true);
-		result.setResult(pageList);
+		result.setData(pageList);
 		return result;
 	}
 	
@@ -77,15 +77,14 @@ public class ${entityName}Controller {
 	 */
 	@PostMapping(value = "/add")
 	@ApiOperation("添加")
-	public Result<${entityName}> add(@RequestBody ${entityName} ${entityName?uncap_first}) {
-		Result<${entityName}> result = new Result<${entityName}>();
+	public DefaultResponse<${entityName}> add(@RequestBody ${entityName} ${entityName?uncap_first}) {
+		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
 		try {
 			${entityName?uncap_first}Service.save(${entityName?uncap_first});
-			result.success("添加成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info(e.getMessage());
-			result.error500("操作失败");
+			result.setResultCode(CommonResultCode.UNKNOWN_EXCEPTION.getCode());
 		}
 		return result;
 	}
@@ -97,16 +96,15 @@ public class ${entityName}Controller {
 	 */
 	@PutMapping(value = "/edit")
 	@ApiOperation("编辑")
-	public Result<${entityName}> edit(@RequestBody ${entityName} ${entityName?uncap_first}) {
-		Result<${entityName}> result = new Result<${entityName}>();
+	public DefaultResponse<${entityName}> edit(@RequestBody ${entityName} ${entityName?uncap_first}) {
+		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
 		${entityName} ${entityName?uncap_first}Entity = ${entityName?uncap_first}Service.getById(${entityName?uncap_first}.getId());
 		if(${entityName?uncap_first}Entity==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
 			boolean ok = ${entityName?uncap_first}Service.updateById(${entityName?uncap_first});
-			//TODO 返回false说明什么？
-			if(ok) {
-				result.success("修改成功!");
+			if(!ok) {
+				result.setResultCode(CommonResultCode.NO_DATA_IS_UPDATED.getCode());
 			}
 		}
 		
@@ -120,15 +118,15 @@ public class ${entityName}Controller {
 	 */
 	@DeleteMapping(value = "/delete")
 	@ApiOperation("通过id删除")
-	public Result<${entityName}> delete(@RequestParam(name="id",required=true) String id) {
-		Result<${entityName}> result = new Result<${entityName}>();
+	public DefaultResponse<${entityName}> delete(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
 		${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Service.getById(id);
 		if(${entityName?uncap_first}==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
 			boolean ok = ${entityName?uncap_first}Service.removeById(id);
-			if(ok) {
-				result.success("删除成功!");
+			if(!ok) {
+				result.setResultCode(CommonResultCode.NO_DATA_IS_UPDATED.getCode());
 			}
 		}
 		
@@ -142,13 +140,12 @@ public class ${entityName}Controller {
 	 */
 	@DeleteMapping(value = "/deleteBatch")
 	@ApiOperation("批量删除")
-	public Result<${entityName}> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		Result<${entityName}> result = new Result<${entityName}>();
+	public DefaultResponse<${entityName}> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
+		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
 		if(ids==null || "".equals(ids.trim())) {
-			result.error500("参数不识别！");
+			result.setResultCode(CommonResultCode.ARGUMENT_NOT_BE_NULL.getCode());
 		}else {
 			this.${entityName?uncap_first}Service.removeByIds(Arrays.asList(ids.split(",")));
-			result.success("删除成功!");
 		}
 		return result;
 	}
@@ -160,14 +157,13 @@ public class ${entityName}Controller {
 	 */
 	@GetMapping(value = "/queryById")
 	@ApiOperation("通过id查询")
-	public Result<${entityName}> queryById(@RequestParam(name="id",required=true) String id) {
-		Result<${entityName}> result = new Result<${entityName}>();
+	public DefaultResponse<${entityName}> queryById(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
 		${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Service.getById(id);
 		if(${entityName?uncap_first}==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
-			result.setResult(${entityName?uncap_first});
-			result.setSuccess(true);
+			result.setData(demo);
 		}
 		return result;
 	}
@@ -214,7 +210,8 @@ public class ${entityName}Controller {
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
   @ApiOperation("通过excel导入数据")
-  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+  public DefaultResponse<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+      DefaultResponse result = new DefaultResponse();
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
       for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
@@ -228,10 +225,12 @@ public class ${entityName}Controller {
               for (${entityName} ${entityName?uncap_first}Excel : list${entityName}s) {
                   ${entityName?uncap_first}Service.save(${entityName?uncap_first}Excel);
               }
-              return Result.ok("文件导入成功！数据行数：" + list${entityName}s.size());
+              result.setResultMessage("文件导入成功！数据行数：" + listDemos.size());
+              return result;
           } catch (Exception e) {
               log.error(e.getMessage());
-              return Result.error("文件导入失败！");
+              result.setResultCode(CommonResultCode.UNKNOWN_EXCEPTION.getCode());
+              return result;
           } finally {
               try {
                   file.getInputStream().close();
@@ -240,7 +239,8 @@ public class ${entityName}Controller {
               }
           }
       }
-      return Result.ok("文件导入失败！");
+      result.setResultCode(CommonResultCode.EXECUTE_FAIL.getCode());
+      return result;
   }
 
 }

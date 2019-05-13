@@ -8,7 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.liujk.custom.code.generator.common.api.Result;
+import org.liujk.custom.code.generator.common.api.CommonResultCode;
+import org.liujk.custom.code.generator.common.api.DefaultResponse;
 import org.liujk.custom.code.generator.common.system.query.QueryGenerator;
 import org.liujk.custom.code.generator.common.util.oConvertUtils;
 import org.liujk.custom.code.generator.modules.demo.entity.Demo;
@@ -37,7 +38,7 @@ import io.swagger.annotations.ApiOperation;
  * @Title: Controller
  * @Description: demo
  * @author： jeecg-boot
- * @date：   2019-05-12
+ * @date：   2019-05-13
  * @version： V1.0
  */
 @RestController
@@ -57,16 +58,15 @@ public class DemoController {
 	 */
 	@GetMapping(value = "/list")
 	@ApiOperation("分页列表查询")
-	public Result<IPage<Demo>> queryPageList(Demo demo,
+	public DefaultResponse<IPage<Demo>> queryPageList(Demo demo,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 									  HttpServletRequest req) {
-		Result<IPage<Demo>> result = new Result<IPage<Demo>>();
+		DefaultResponse<IPage<Demo>> result = new DefaultResponse<IPage<Demo>>();
 		QueryWrapper<Demo> queryWrapper = QueryGenerator.initQueryWrapper(demo, req.getParameterMap());
 		Page<Demo> page = new Page<Demo>(pageNo, pageSize);
 		IPage<Demo> pageList = demoService.page(page, queryWrapper);
-		result.setSuccess(true);
-		result.setResult(pageList);
+		result.setData(pageList);
 		return result;
 	}
 	
@@ -77,15 +77,14 @@ public class DemoController {
 	 */
 	@PostMapping(value = "/add")
 	@ApiOperation("添加")
-	public Result<Demo> add(@RequestBody Demo demo) {
-		Result<Demo> result = new Result<Demo>();
+	public DefaultResponse<Demo> add(@RequestBody Demo demo) {
+		DefaultResponse<Demo> result = new DefaultResponse<Demo>();
 		try {
 			demoService.save(demo);
-			result.success("添加成功！");
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info(e.getMessage());
-			result.error500("操作失败");
+			result.setResultCode(CommonResultCode.UNKNOWN_EXCEPTION.getCode());
 		}
 		return result;
 	}
@@ -97,16 +96,15 @@ public class DemoController {
 	 */
 	@PutMapping(value = "/edit")
 	@ApiOperation("编辑")
-	public Result<Demo> edit(@RequestBody Demo demo) {
-		Result<Demo> result = new Result<Demo>();
+	public DefaultResponse<Demo> edit(@RequestBody Demo demo) {
+		DefaultResponse<Demo> result = new DefaultResponse<Demo>();
 		Demo demoEntity = demoService.getById(demo.getId());
 		if(demoEntity==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
 			boolean ok = demoService.updateById(demo);
-			//TODO 返回false说明什么？
-			if(ok) {
-				result.success("修改成功!");
+			if(!ok) {
+				result.setResultCode(CommonResultCode.NO_DATA_IS_UPDATED.getCode());
 			}
 		}
 		
@@ -120,15 +118,15 @@ public class DemoController {
 	 */
 	@DeleteMapping(value = "/delete")
 	@ApiOperation("通过id删除")
-	public Result<Demo> delete(@RequestParam(name="id",required=true) String id) {
-		Result<Demo> result = new Result<Demo>();
+	public DefaultResponse<Demo> delete(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<Demo> result = new DefaultResponse<Demo>();
 		Demo demo = demoService.getById(id);
 		if(demo==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
 			boolean ok = demoService.removeById(id);
-			if(ok) {
-				result.success("删除成功!");
+			if(!ok) {
+				result.setResultCode(CommonResultCode.NO_DATA_IS_UPDATED.getCode());
 			}
 		}
 		
@@ -142,13 +140,12 @@ public class DemoController {
 	 */
 	@DeleteMapping(value = "/deleteBatch")
 	@ApiOperation("批量删除")
-	public Result<Demo> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		Result<Demo> result = new Result<Demo>();
+	public DefaultResponse<Demo> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
+		DefaultResponse<Demo> result = new DefaultResponse<Demo>();
 		if(ids==null || "".equals(ids.trim())) {
-			result.error500("参数不识别！");
+			result.setResultCode(CommonResultCode.ARGUMENT_NOT_BE_NULL.getCode());
 		}else {
 			this.demoService.removeByIds(Arrays.asList(ids.split(",")));
-			result.success("删除成功!");
 		}
 		return result;
 	}
@@ -160,14 +157,13 @@ public class DemoController {
 	 */
 	@GetMapping(value = "/queryById")
 	@ApiOperation("通过id查询")
-	public Result<Demo> queryById(@RequestParam(name="id",required=true) String id) {
-		Result<Demo> result = new Result<Demo>();
+	public DefaultResponse<Demo> queryById(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<Demo> result = new DefaultResponse<Demo>();
 		Demo demo = demoService.getById(id);
 		if(demo==null) {
-			result.error500("未找到对应实体");
+			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
-			result.setResult(demo);
-			result.setSuccess(true);
+			result.setData(demo);
 		}
 		return result;
 	}
@@ -214,7 +210,8 @@ public class DemoController {
    */
   @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
   @ApiOperation("通过excel导入数据")
-  public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+  public DefaultResponse<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+      DefaultResponse result = new DefaultResponse();
       MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
       Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
       for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
@@ -228,10 +225,12 @@ public class DemoController {
               for (Demo demoExcel : listDemos) {
                   demoService.save(demoExcel);
               }
-              return Result.ok("文件导入成功！数据行数：" + listDemos.size());
+              result.setResultMessage("文件导入成功！数据行数：" + listDemos.size());
+              return result;
           } catch (Exception e) {
               log.error(e.getMessage());
-              return Result.error("文件导入失败！");
+              result.setResultCode(CommonResultCode.UNKNOWN_EXCEPTION.getCode());
+              return result;
           } finally {
               try {
                   file.getInputStream().close();
@@ -240,7 +239,8 @@ public class DemoController {
               }
           }
       }
-      return Result.ok("文件导入失败！");
+      result.setResultCode(CommonResultCode.EXECUTE_FAIL.getCode());
+      return result;
   }
 
 }
