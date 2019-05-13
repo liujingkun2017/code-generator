@@ -1,4 +1,4 @@
-package org.liujk.custom.code.generator.common.aspect;
+package org.liujk.custom.code.generator.common.aspect.data;
 
 public class FieldEnableValue {
 
