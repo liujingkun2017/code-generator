@@ -27,7 +27,7 @@ spring-boot-plus:
       # 数据库连接用户名
       username: root
       # 数据库连接密码
-      password: root
+      password: 246437
       # 驱动URL
       driver-name: com.mysql.jdbc.Driver
       # 驱动URL
