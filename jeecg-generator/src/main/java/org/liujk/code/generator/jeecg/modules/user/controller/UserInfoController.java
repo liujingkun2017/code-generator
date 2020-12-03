@@ -1,4 +1,4 @@
-package ${bussiPackage}.${entityPackage}.controller;
+package org.liujk.code.generator.jeecg.modules.user.controller;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +12,8 @@ import org.liujk.code.generator.jeecg.common.api.CommonResultCode;
 import org.liujk.code.generator.jeecg.common.api.DefaultResponse;
 import org.liujk.code.generator.jeecg.modules.system.query.QueryGenerator;
 import org.liujk.code.generator.jeecg.common.util.oConvertUtils;
-import ${bussiPackage}.${entityPackage}.entity.${entityName};
-import ${bussiPackage}.${entityPackage}.service.I${entityName}Service;
+import org.liujk.code.generator.jeecg.modules.user.entity.UserInfo;
+import org.liujk.code.generator.jeecg.modules.user.service.IUserInfoService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -36,21 +36,21 @@ import io.swagger.annotations.ApiOperation;
 
  /**
  * @Title: Controller
- * @Description: ${tableVo.ftlDescription}
+ * @Description: user_info
  * @author： jeecg-boot
- * @date：   ${.now?string["yyyy-MM-dd"]}
+ * @date：   2020-12-03
  * @version： V1.0
  */
 @RestController
-@RequestMapping("/${entityPackage}/${entityName?uncap_first}")
+@RequestMapping("/user/userInfo")
 @Slf4j
-public class ${entityName}Controller {
+public class UserInfoController {
 	@Autowired
-	private I${entityName}Service ${entityName?uncap_first}Service;
+	private IUserInfoService userInfoService;
 	
 	/**
 	  * 分页列表查询
-	 * @param ${entityName?uncap_first}
+	 * @param userInfo
 	 * @param pageNo
 	 * @param pageSize
 	 * @param req
@@ -58,29 +58,29 @@ public class ${entityName}Controller {
 	 */
 	@GetMapping(value = "/list")
 	@ApiOperation("分页列表查询")
-	public DefaultResponse<IPage<${entityName}>> queryPageList(${entityName} ${entityName?uncap_first},
+	public DefaultResponse<IPage<UserInfo>> queryPageList(UserInfo userInfo,
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 									  HttpServletRequest req) {
-		DefaultResponse<IPage<${entityName}>> result = new DefaultResponse<IPage<${entityName}>>();
-		QueryWrapper<${entityName}> queryWrapper = QueryGenerator.initQueryWrapper(${entityName?uncap_first}, req.getParameterMap());
-		Page<${entityName}> page = new Page<${entityName}>(pageNo, pageSize);
-		IPage<${entityName}> pageList = ${entityName?uncap_first}Service.page(page, queryWrapper);
+		DefaultResponse<IPage<UserInfo>> result = new DefaultResponse<IPage<UserInfo>>();
+		QueryWrapper<UserInfo> queryWrapper = QueryGenerator.initQueryWrapper(userInfo, req.getParameterMap());
+		Page<UserInfo> page = new Page<UserInfo>(pageNo, pageSize);
+		IPage<UserInfo> pageList = userInfoService.page(page, queryWrapper);
 		result.setData(pageList);
 		return result;
 	}
 	
 	/**
 	  *   添加
-	 * @param ${entityName?uncap_first}
+	 * @param userInfo
 	 * @return
 	 */
 	@PostMapping(value = "/add")
 	@ApiOperation("添加")
-	public DefaultResponse<${entityName}> add(@RequestBody ${entityName} ${entityName?uncap_first}) {
-		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
+	public DefaultResponse<UserInfo> add(@RequestBody UserInfo userInfo) {
+		DefaultResponse<UserInfo> result = new DefaultResponse<UserInfo>();
 		try {
-			${entityName?uncap_first}Service.save(${entityName?uncap_first});
+			userInfoService.save(userInfo);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info(e.getMessage());
@@ -91,18 +91,18 @@ public class ${entityName}Controller {
 	
 	/**
 	  *  编辑
-	 * @param ${entityName?uncap_first}
+	 * @param userInfo
 	 * @return
 	 */
 	@PutMapping(value = "/edit")
 	@ApiOperation("编辑")
-	public DefaultResponse<${entityName}> edit(@RequestBody ${entityName} ${entityName?uncap_first}) {
-		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
-		${entityName} ${entityName?uncap_first}Entity = ${entityName?uncap_first}Service.getById(${entityName?uncap_first}.getId());
-		if(${entityName?uncap_first}Entity==null) {
+	public DefaultResponse<UserInfo> edit(@RequestBody UserInfo userInfo) {
+		DefaultResponse<UserInfo> result = new DefaultResponse<UserInfo>();
+		UserInfo userInfoEntity = userInfoService.getById(userInfo.getId());
+		if(userInfoEntity==null) {
 			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
-			boolean ok = ${entityName?uncap_first}Service.updateById(${entityName?uncap_first});
+			boolean ok = userInfoService.updateById(userInfo);
 			if(!ok) {
 				result.setResultCode(CommonResultCode.NO_DATA_IS_UPDATED.getCode());
 			}
@@ -118,13 +118,13 @@ public class ${entityName}Controller {
 	 */
 	@DeleteMapping(value = "/delete")
 	@ApiOperation("通过id删除")
-	public DefaultResponse<${entityName}> delete(@RequestParam(name="id",required=true) String id) {
-		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
-		${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Service.getById(id);
-		if(${entityName?uncap_first}==null) {
+	public DefaultResponse<UserInfo> delete(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<UserInfo> result = new DefaultResponse<UserInfo>();
+		UserInfo userInfo = userInfoService.getById(id);
+		if(userInfo==null) {
 			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
-			boolean ok = ${entityName?uncap_first}Service.removeById(id);
+			boolean ok = userInfoService.removeById(id);
 			if(!ok) {
 				result.setResultCode(CommonResultCode.NO_DATA_IS_UPDATED.getCode());
 			}
@@ -140,12 +140,12 @@ public class ${entityName}Controller {
 	 */
 	@DeleteMapping(value = "/deleteBatch")
 	@ApiOperation("批量删除")
-	public DefaultResponse<${entityName}> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
+	public DefaultResponse<UserInfo> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
+		DefaultResponse<UserInfo> result = new DefaultResponse<UserInfo>();
 		if(ids==null || "".equals(ids.trim())) {
 			result.setResultCode(CommonResultCode.ARGUMENT_NOT_BE_NULL.getCode());
 		}else {
-			this.${entityName?uncap_first}Service.removeByIds(Arrays.asList(ids.split(",")));
+			this.userInfoService.removeByIds(Arrays.asList(ids.split(",")));
 		}
 		return result;
 	}
@@ -157,13 +157,13 @@ public class ${entityName}Controller {
 	 */
 	@GetMapping(value = "/queryById")
 	@ApiOperation("通过id查询")
-	public DefaultResponse<${entityName}> queryById(@RequestParam(name="id",required=true) String id) {
-		DefaultResponse<${entityName}> result = new DefaultResponse<${entityName}>();
-		${entityName} ${entityName?uncap_first} = ${entityName?uncap_first}Service.getById(id);
-		if(${entityName?uncap_first}==null) {
+	public DefaultResponse<UserInfo> queryById(@RequestParam(name="id",required=true) String id) {
+		DefaultResponse<UserInfo> result = new DefaultResponse<UserInfo>();
+		UserInfo userInfo = userInfoService.getById(id);
+		if(userInfo==null) {
 			result.setResultCode(CommonResultCode.DATA_NOT_EXISTS.getCode());
 		}else {
-			result.setData(${entityName?uncap_first});
+			result.setData(userInfo);
 		}
 		return result;
 	}
@@ -178,13 +178,13 @@ public class ${entityName}Controller {
   @ApiOperation("导出excel")
   public ModelAndView exportXls(HttpServletRequest request, HttpServletResponse response) {
       // Step.1 组装查询条件
-      QueryWrapper<${entityName}> queryWrapper = null;
+      QueryWrapper<UserInfo> queryWrapper = null;
       try {
           String paramsStr = request.getParameter("paramsStr");
           if (oConvertUtils.isNotEmpty(paramsStr)) {
               String deString = URLDecoder.decode(paramsStr, "UTF-8");
-              ${entityName} ${entityName?uncap_first} = JSON.parseObject(deString, ${entityName}.class);
-              queryWrapper = QueryGenerator.initQueryWrapper(${entityName?uncap_first}, request.getParameterMap());
+              UserInfo userInfo = JSON.parseObject(deString, UserInfo.class);
+              queryWrapper = QueryGenerator.initQueryWrapper(userInfo, request.getParameterMap());
           }
       } catch (UnsupportedEncodingException e) {
           e.printStackTrace();
@@ -192,11 +192,11 @@ public class ${entityName}Controller {
 
       //Step.2 AutoPoi 导出Excel
       ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
-      List<${entityName}> pageList = ${entityName?uncap_first}Service.list(queryWrapper);
+      List<UserInfo> pageList = userInfoService.list(queryWrapper);
       //导出文件名称
-      mv.addObject(NormalExcelConstants.FILE_NAME, "${tableVo.ftlDescription}列表");
-      mv.addObject(NormalExcelConstants.CLASS, ${entityName}.class);
-      mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("${tableVo.ftlDescription}列表数据", "导出人:Jeecg", "导出信息"));
+      mv.addObject(NormalExcelConstants.FILE_NAME, "user_info列表");
+      mv.addObject(NormalExcelConstants.CLASS, UserInfo.class);
+      mv.addObject(NormalExcelConstants.PARAMS, new ExportParams("user_info列表数据", "导出人:Jeecg", "导出信息"));
       mv.addObject(NormalExcelConstants.DATA_LIST, pageList);
       return mv;
   }
@@ -221,11 +221,11 @@ public class ${entityName}Controller {
           params.setHeadRows(1);
           params.setNeedSave(true);
           try {
-              List<${entityName}> list${entityName}s = ExcelImportUtil.importExcel(file.getInputStream(), ${entityName}.class, params);
-              for (${entityName} ${entityName?uncap_first}Excel : list${entityName}s) {
-                  ${entityName?uncap_first}Service.save(${entityName?uncap_first}Excel);
+              List<UserInfo> listUserInfos = ExcelImportUtil.importExcel(file.getInputStream(), UserInfo.class, params);
+              for (UserInfo userInfoExcel : listUserInfos) {
+                  userInfoService.save(userInfoExcel);
               }
-              result.setResultMessage("文件导入成功！数据行数：" + list${entityName}s.size());
+              result.setResultMessage("文件导入成功！数据行数：" + listUserInfos.size());
               return result;
           } catch (Exception e) {
               log.error(e.getMessage());
